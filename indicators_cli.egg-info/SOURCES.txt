@@ -1,0 +1,11 @@
+README.md
+setup.py
+indicators/__init__.py
+indicators/cli.py
+indicators/indicators.py
+indicators_cli.egg-info/PKG-INFO
+indicators_cli.egg-info/SOURCES.txt
+indicators_cli.egg-info/dependency_links.txt
+indicators_cli.egg-info/entry_points.txt
+indicators_cli.egg-info/requires.txt
+indicators_cli.egg-info/top_level.txt
