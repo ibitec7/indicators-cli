@@ -1,4 +1,17 @@
-A CLI tool to calculate common technical indicators for stock price
+A CLI tool to calculate common technical indicators for stock price. Sources the data from Yahoo finance API for the input ticker, period, chooses appropriate parameters for indicators and saves the
+added indicators to a CSV file path.
+
+Parameters:
+- Required:
+1) ticker: ticker of the listed security on Yahoo finance
+- Optional
+1) period (-p --period default: 5y): period of data required one of ["ytd","1y","2y","5y","max"]
+2) output path (-o --output default: indicators.csv): path to save the final CSV file
+
+Installation:
+
+    pip install indicators-cli
+
 Here are the explanations and interpretations of each of the technical indicators added
 
 1. Moving Averages (MA)
