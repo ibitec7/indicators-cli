@@ -29,6 +29,16 @@ def bbands(close, win):
 
     return upper, lower
 
+
+def roc(close, win):
+    roc_list = [None for i in range(0,len(close))]
+    x = win
+    while x<len(close):
+        roc_list[x] = ((close[x] - close[x-win]) / close[x-win]) * 100
+        x+=1
+
+    return roc_list
+
 def atr(df, win):
     df["hi_lo"] = df["high"] - df["low"]
     df["hi_close"] = abs(df["high"] - df["close"].shift())
@@ -56,6 +66,7 @@ def calculate_indicators(ticker, period, output_file):
         macd_short, macd_long, macd_signal = 12, 26, 9
         rsi_window = 14
         bb_window = 20
+        roc_window = 10
         atr_window = 14
         stochastic_window = 14
     elif period == "5y":
@@ -64,6 +75,7 @@ def calculate_indicators(ticker, period, output_file):
         macd_short, macd_long, macd_signal = 12, 26, 9
         rsi_window = 21
         bb_window = 50
+        roc_window = 20
         atr_window = 20
         stochastic_window = 21
     elif period == "max":
@@ -72,6 +84,7 @@ def calculate_indicators(ticker, period, output_file):
         macd_short, macd_long, macd_signal = 26, 50, 18
         rsi_window = 30
         bb_window = 100
+        roc_window = 90
         atr_window = 50
         stochastic_window = 30
 
@@ -84,6 +97,7 @@ def calculate_indicators(ticker, period, output_file):
     df["macd"], df["signal_line"], df["macd_hist"] = macd(df["close"], macd_short, macd_long, macd_signal)
     df["rsi"] = rsi(df["close"], rsi_window)
     df["bb_upper"], df["bb_lower"] = bbands(df["close"], bb_window)
+    df["roc"] = roc(df["close"], win=roc_window)
     atr(df, atr_window)
     df["obv"] = obv(df["close"], df["volume"])
     df["%K"], df["%D"] = stochastic_oscillator(df, stochastic_window)

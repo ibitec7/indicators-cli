@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="indicators-cli",                   
-    version="0.1.3",
+    version="0.1.6",
     author="Syed Ibrahim Omer",
     author_email="syed.ibrahim.omer.2@gmail.com",
     description="CLI tool to calculate stock indicators",
