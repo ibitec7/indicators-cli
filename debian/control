@@ -1,0 +1,12 @@
+Source: indicators-cli
+Section: python
+Priority: optional
+Maintainer: Syed Ibrahim Omer <syed.ibrahim.omer.2@gmail.com>
+Build-Depends: debhelper (>= 9), python3, python3-setuptools
+Standards-Version: 4.1.4
+Homepage: https://pypi.org/project/indicators-cli/
+
+Package: indicators-cli
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, python3
+Description: A CLI tool to calculate common technical indicators for stock price. Sources the data from Yahoo finance API for the input ticker, period, chooses appropr iate parameters for indicators and saves the added indicators to a CSV file path.

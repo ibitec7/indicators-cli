@@ -1,0 +1,2 @@
+src/cli.py usr/bin/
+src/indicators.py usr/lib/
