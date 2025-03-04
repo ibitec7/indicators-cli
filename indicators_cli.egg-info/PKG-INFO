@@ -10,10 +10,7 @@ Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
-Requires-Dist: pandas
-Requires-Dist: numpy
-Requires-Dist: yfinance
-Requires-Dist: click
+License-File: LICENSE
 
 A CLI tool to calculate common technical indicators for stock price. Sources the data from Yahoo finance API for the input ticker, period, chooses appropriate parameters for indicators and saves the
 added indicators to a CSV file path.

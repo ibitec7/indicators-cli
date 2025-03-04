@@ -1,4 +1,4 @@
-pandas
-numpy
-yfinance
 click
+numpy
+pandas
+yfinance
