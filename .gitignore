@@ -1,2 +1,7 @@
-build
+debian/.debianhelper
+debian/indicators-cli
+debian/debhelper-build-stamp
+debian/indicators-cli.substvars
+debian/dist
+debian/indicators_cli.egg-info
 indicators
