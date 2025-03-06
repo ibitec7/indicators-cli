@@ -1,7 +1,5 @@
-pandas
 yfinance
 numpy
 argparse
 click
 polars
-cudf-polars-cu12
