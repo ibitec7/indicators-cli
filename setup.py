@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="indicators-cli",                   
-    version="0.1.6",
+    version="1.0.0",
     author="Syed Ibrahim Omer",
     author_email="syed.ibrahim.omer.2@gmail.com",
     description="CLI tool to calculate stock indicators",
@@ -11,7 +11,7 @@ setup(
     url="https://github.com/ibitec7/indicators-cli",
     packages=find_packages(),                
     install_requires=[
-        "pandas",
+        "polars",
         "numpy",
         "yfinance",
         "click"                               
