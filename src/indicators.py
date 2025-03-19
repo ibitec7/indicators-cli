@@ -1,6 +1,7 @@
 import polars as pl
 import numpy as np
 import yfinance as yf
+import argparse
 
 def macd(df, macd_short, macd_long, macd_signal):
     df = df.with_columns(

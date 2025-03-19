@@ -18,7 +18,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'indicators=indicators.cli:main',            
+            'indicators=src.cli:main',            
         ],
     },
     classifiers=[

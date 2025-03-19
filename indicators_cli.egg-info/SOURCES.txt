@@ -1,4 +1,3 @@
-LICENSE
 README.md
 setup.py
 indicators_cli.egg-info/PKG-INFO

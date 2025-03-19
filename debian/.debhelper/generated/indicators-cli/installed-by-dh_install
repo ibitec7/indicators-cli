@@ -1,2 +1,2 @@
-./indicators/cli.py
-./indicators/indicators.py
+./src/cli.py
+./src/indicators.py
