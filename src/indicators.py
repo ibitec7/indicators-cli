@@ -105,6 +105,7 @@ def calculate_indicators(ticker, period, output_file):
 
 
     schema = {
+        "Date": pl.Date,
         "Open": pl.Float32,
         "High": pl.Float32,
         "Low": pl.Float32,
