@@ -3,7 +3,7 @@ added indicators to a CSV file path.
 
 ```
     What's New:
-    - v1.0.0: Upgrade to a polars library to support concurrent data processing,
+    - v1.0.0: Upgrade to polars library to support concurrent data processing,
                 lazy computations  and support for both CPU and GPU engines. 
     
     - v1.0.1: Added support for asynchronous handling of I/O bound tasks and downloading
