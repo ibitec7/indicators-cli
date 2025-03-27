@@ -115,7 +115,7 @@ def calculate_indicators(ticker, period, output_file):
         "Stock Splits": pl.Float32
     }
 
-    df = pl.from_pandas(yf.Ticker(ticker).history(period), schema_overrides=schema).lazy()
+    df = pl.from_pandas(yf.Ticker(ticker).history(period).reset_index(), schema_overrides=schema).lazy()
     columns = df.collect_schema().names()
     df = df.rename({old: new for old, new in zip(columns, [x.lower() for x in columns])})
 
