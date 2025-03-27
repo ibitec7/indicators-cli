@@ -2,7 +2,7 @@ A CLI tool to calculate common technical indicators for stock price. Sources the
 added indicators to a CSV file path.
 
 ```
-    What's New:
+What's New:
     - v1.0.0: Upgrade to polars library to support concurrent data processing,
                 lazy computations  and support for both CPU and GPU engines. 
     
@@ -39,6 +39,8 @@ Example:
 
 For help:
     indicators-cli --help
+
+## Interpretation
 
 Here are the explanations and interpretations of each of the technical indicators added
 
