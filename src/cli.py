@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import click
-from indicators import calculate_indicators, source_data, write_output
+from .indicators import calculate_indicators, source_data, write_output
 import json
 import asyncio
 
