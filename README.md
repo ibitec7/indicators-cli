@@ -6,7 +6,7 @@ What's New:
     - v1.0.0: Upgrade to polars library to support concurrent data processing,
                 lazy computations  and support for both CPU and GPU engines. 
     
-    - v1.0.1: Added support for asynchronous handling of I/O bound tasks and downloading
+    - v1.1.0: Added support for asynchronous handling of I/O bound tasks and downloading
               (done by yfinance backend). Added support for configuration files and downsampling.
 ```
 

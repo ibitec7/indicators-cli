@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: indicators-cli
-Version: 1.1.0
+Version: 1.1.1
 Summary: CLI tool to calculate stock indicators
 Home-page: https://github.com/ibitec7/indicators-cli
 Author: Syed Ibrahim Omer
@@ -32,7 +32,7 @@ What's New:
     - v1.0.0: Upgrade to polars library to support concurrent data processing,
                 lazy computations  and support for both CPU and GPU engines. 
     
-    - v1.0.1: Added support for asynchronous handling of I/O bound tasks and downloading
+    - v1.1.0: Added support for asynchronous handling of I/O bound tasks and downloading
               (done by yfinance backend). Added support for configuration files and downsampling.
 ```
 
