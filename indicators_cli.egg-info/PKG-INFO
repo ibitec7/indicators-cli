@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: indicators-cli
-Version: 1.0.3
+Version: 1.1.0
 Summary: CLI tool to calculate stock indicators
 Home-page: https://github.com/ibitec7/indicators-cli
 Author: Syed Ibrahim Omer
@@ -27,16 +27,44 @@ Dynamic: summary
 A CLI tool to calculate common technical indicators for stock price. Sources the data from Yahoo finance API for the input ticker, period, chooses appropriate parameters for indicators and saves the
 added indicators to a CSV file path.
 
+```
+    What's New:
+    - v1.0.0: Upgrade to a polars library to support concurrent data processing,
+                lazy computations  and support for both CPU and GPU engines. 
+    
+    - v1.0.1: Added support for asynchronous handling of I/O bound tasks and downloading
+              (done by yfinance backend). Added support for configuration files and downsampling.
+```
+
 Parameters:
 - Required:
-1) ticker: ticker of the listed security on Yahoo finance
-- Optional
-1) period (-p --period default: 5y): period of data required one of ["ytd","1y","2y","5y","max"]
-2) output path (-o --output default: indicators.csv): path to save the final CSV file
+  1) ticker: ticker of the listed security on Yahoo finance
+- Optional:
+  1) period (-p, --period; default: 5y): Period of the stock data. One of ["ytd", "1y", "2y", "5y", "max"]
+  2) timeframe (-t, --timeframe; default: daily): Time frame of stock data. Can be a string (e.g., "daily", "1d", "1wk") or a JSON file path.
+  3) output path (-o, --output): File name for saving the output. If a TXT file is provided, each line is treated as a distinct output file name.
+  4) format (-f, --format; default: csv): Output format. One of ["csv", "parquet", "json", "xlsx", "avro"]
+  5) directory (-d, --dir): Directory to save the output file.
+  6) config JSON file (-c, --config_json): Path to a JSON file for indicator configurations.
+  7) engine (-e, --engine; default: cpu): Computation engine to use. One of ["cpu", "gpu"]
 
 Installation:
 
     pip install indicators-cli
+
+## How to Use
+
+Install the tool:
+    pip install indicators-cli
+
+Run the CLI tool:
+    indicators-cli TICKER [OPTIONS]
+
+Example:
+    indicators-cli AAPL -p 5y -t daily -f csv -e cpu -o indicators.csv
+
+For help:
+    indicators-cli --help
 
 Here are the explanations and interpretations of each of the technical indicators added
 
@@ -128,3 +156,8 @@ Interpretation:
     Like RSI, a value above 80 suggests overbought conditions, while a value below 20 suggests oversold conditions.
     When the %K line crosses above the %D line in the oversold region (below 20), it’s a potential buy signal. Conversely, when it crosses below the %D line in the overbought region (above 80), it’s a potential sell signal.
     Divergences between price and the Stochastic Oscillator can indicate potential trend reversals.
+
+## Build and Publish
+
+The package is automatically built and published to PyPI when a git tag starting with "v" (e.g., v1.1.0) is pushed. This process is managed by the GitHub Actions workflow located at:
+    .github/workflows/workflow.yaml

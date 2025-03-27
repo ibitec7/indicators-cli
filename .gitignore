@@ -4,7 +4,9 @@ debian/debhelper-build-stamp
 debian/indicators-cli.substvars
 dist
 debian/debhelper-build-stamp
+src/__pycache__/*
 debian/files
+build/*
 debian/indicators-cli.substvars
-indicators_cli.egg-info
-.pybuild
+indicators_cli.egg-info/*
+pybuild/*

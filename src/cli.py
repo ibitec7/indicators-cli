@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
 import click
-import itertools
 from indicators import calculate_indicators, source_data, write_output
 import json
 import asyncio
-import logging
 
 VERSION="1.1.0"
 
