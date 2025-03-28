@@ -2,6 +2,8 @@ import polars as pl
 import yfinance as yf
 import asyncio
 import os
+import json
+import time
 
 def macd(df, macd_short, macd_long, macd_signal):
     df = df.with_columns(
@@ -86,21 +88,45 @@ def source_data(tickers, period, timeframe) -> pl.LazyFrame:
         "Stock Splits": pl.Float32
     }
 
-    data = yf.Tickers(tickers).history(period=period, interval=timeframe[period]).reset_index()
+    if isinstance(timeframe, dict):
+        data = yf.Tickers(tickers).history(period=period, interval=timeframe[period]).reset_index()
+    else:
+        data = yf.Tickers(tickers).history(period=period, interval=timeframe).reset_index()
 
-    df = pl.from_pandas(data, schema_overrides=schema).lazy()
+    try:
+        df = pl.from_pandas(data, schema_overrides=schema).lazy()
+    except Exception as e:
+        print(f"Error converting data: {e}")
+        return []
 
     return_package = []
     cols = ["Close", "High", "Low", "Open", "Volume", "Dividends", "Stock Splits"]
 
+    valid_tickers = []
     for ticker in tickers:
-        names = {"('Date', '')": "Date"} | {f"('{col}', '{ticker}')": col for col in cols}
-        package = {
-            "data": df.select(names.keys()).rename(names),
-            "ticker": ticker,
-            "period": period
-        }
-        return_package.append(package)
+        try:
+            test_col = f"('Close', '{ticker}')"
+            if test_col not in df.collect_schema().names():
+                print(f"Skipping ticker {ticker} - no data found")
+                continue
+            valid_tickers.append(ticker)
+        except Exception as e:
+            print(f"Error checking ticker {ticker}: {e}")
+            continue
+
+    for ticker in valid_tickers:
+        try:
+            names = {"('Date', '')": "Date"} | {f"('{col}', '{ticker}')": col for col in cols}
+            valid_cols = [col for col in names.keys() if col in df.collect_schema().names()]
+            valid_names = {k: names[k] for k in valid_cols}
+            package = {
+                "data": df.select(valid_cols).rename(valid_names),
+                "ticker": ticker,
+                "period": period
+            }
+            return_package.append(package)
+        except Exception as e:
+            print(f"Error processing ticker {ticker}: {e}")
 
     return return_package
 
@@ -161,7 +187,14 @@ def calculate_indicators(df: pl.LazyFrame, ticker, period, config=None, engine="
         atr_window = defaults["atr_window"][period]
         stochastic_window = defaults["stochastic_window"][period]
 
-    columns = df.collect_schema().names()
+    try:
+        columns = df.collect_schema().names()
+    except Exception as e:
+        print(f"Error collecting schema: {e}")
+        # Define fallback standard column names if schema collection fails
+        columns = ["Date", "Open", "High", "Low", "Close", "Volume", "Dividends", "Stock Splits"]
+        print(f"Using default column names: {columns}")
+
     df = df.rename({old: new for old, new in zip(columns, [x.lower() for x in columns])})
 
     df = df.with_columns(
@@ -213,3 +246,103 @@ async def write_output(df: pl.DataFrame, dir,output_file, ticker, period, type):
         await asyncio.to_thread(df.write_csv, output_file)
 
     return output_file
+
+def run_asyncio(tasks):
+    if not tasks:
+        return []
+    
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        tasks_future = [asyncio.ensure_future(task) for task in tasks]
+        return loop.run_until_complete(asyncio.gather(*tasks_future))
+    finally:
+        loop.close()
+
+def format_time(seconds):
+    """Format time in the most appropriate unit."""
+    if seconds < 0.001:
+        return f"{seconds*1000000:.2f} μs"
+    elif seconds < 1:
+        return f"{seconds*1000:.2f} ms"
+    elif seconds < 60:
+        return f"{seconds:.2f} s"
+    elif seconds < 3600:
+        minutes = seconds / 60
+        return f"{minutes:.2f} min"
+    else:
+        hours = seconds / 3600
+        return f"{hours:.2f} h"
+
+def run_main(ticker, period, timeframe, output, format, dir, config_json, engine):
+
+    start = time.time()
+
+    if timeframe.endswith(".json"):
+        with open(timeframe, "r") as f:
+            time_frame = json.load(f)
+    else:
+        time_frame = timeframe
+
+    config = dict()
+    if config_json is not None:
+        with open(config_json, "r") as f:
+            config = json.load(f)
+
+    tickers = []
+
+    if ticker[0].endswith(".txt"):
+        with open(ticker[0], "r") as f:
+            tickers = f.read().split("\n")
+    elif "," in ticker:
+        tickers.extend(ticker.split(","))
+    else:
+        tickers = list(ticker)
+
+    periods = []
+    if period.endswith(".txt"):
+        with open(period, "r") as f:
+            periods = f.read().split("\n")
+    elif "," in period:
+        periods.extend(period.split(","))
+    else:
+        periods.append(period)
+
+    outputs = []
+    if output is not None:
+        if output.endswith(".txt"):
+            with open(output, "r") as f:
+                outputs = [line.strip() for line in f if line.strip()]
+        else:
+            for o in output:
+                output.extend(o.split(","))
+
+    sourced_data = []
+
+    start_source = time.time()
+
+    for p in periods:
+        sourced_data += source_data(tickers, p, timeframe=time_frame)
+
+    elapsed_source = time.time() - start_source
+
+    start_calc = time.time()
+
+    prepared_data = [calculate_indicators(df=df["data"], ticker=df["ticker"], period=df["period"], config=config, engine=engine) for df in sourced_data]
+
+    elapsed_calc = time.time() - start_calc
+
+    if len(prepared_data) > len(outputs):
+        for i in range(len(prepared_data) - len(outputs)):
+            outputs.append(None)
+
+    start_write = time.time()
+
+    tasks = [write_output(df["data"], output_file=output,ticker=df["ticker"], period=df["period"], dir=dir, type=format) for df, output in zip(prepared_data, outputs)]
+    run_asyncio(tasks)
+
+    elapsed_write = time.time() - start_write
+
+    elapsed = time.time() - start
+
+    print(f"Overall Time: {format_time(elapsed)}    ||      Source Time: {format_time(elapsed_source)}   ||      Calculation Time: {format_time(elapsed_calc)}    ||      Write Time: {format_time(elapsed_write)}")

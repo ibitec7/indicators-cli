@@ -7,7 +7,60 @@ What's New:
                 lazy computations  and support for both CPU and GPU engines. 
     
     - v1.1.0: Added support for asynchronous handling of I/O bound tasks and downloading
-              (done by yfinance backend). Added support for configuration files and downsampling.
+              (done by yfinance backend).
+
+    - v1.2.0: Added support for configuration files and downsampling.
+```
+
+## Templates
+1) **Indicators JSON Config:**
+    Enter the values you want to overide for whichever period you are scraping. Each integer value is a certain number of timeframe periods so if your timeframe is "1wk" for the "ytd" period then entering 20 would mean a 20 weeks window. Entering all values is not necessary. The values ommitted will be replaced by default values in this template:
+```
+    {
+        "sma_window": {
+            "ytd": 20,"1y": 20,"2y": 20,"5y": 50,"10y": 200,"max": 200
+        },
+        "ema_window": {
+            "ytd": 20,"1y": 20,"2y": 20,"5y": 50,"10y": 200,"max": 200
+        },
+        "macd_short": {
+            "ytd": 12,"1y": 12,"2y": 12,"5y": 12,"10y": 26,"max": 26
+        },
+        "macd_long": {
+            "ytd": 26,"1y": 26,"2y": 26,"5y": 26,"10y": 50,"max": 50
+        },
+        "macd_signal": {
+            "ytd": 9,"1y": 9,"2y": 9,"5y": 9,"10y": 18,"max": 18
+        },
+        "rsi_window": {
+            "ytd": 14,"1y": 14,"2y": 14,"5y": 21,"10y": 30,"max": 30
+        },
+        "bb_window": {
+            "ytd": 20,"1y": 20,"2y": 20,"5y": 50,"10y": 100,"max": 100
+        },
+        "roc_window": {
+            "ytd": 10,"1y": 10,"2y": 10,"5y": 20,"10y": 90,"max": 90
+        },
+        "atr_window": {
+            "ytd": 14,"1y": 14,"2y": 14,"5y": 20,"10y": 50,"max": 50
+        },
+        "stochastic_window": {
+            "ytd": 14,"1y": 14,"2y": 14,"5y": 21,"10y": 30,"max": 30
+        }
+    }
+```
+
+2) **Timeframe Config:**
+    Enter the timeframe you would like to choose for each period. Entering a timeframe for each period you mention is necessary if you pass a JSON configuration.
+```
+    {
+        "ytd": "1d",
+        "1y": "1d",
+        "2y": "1wk",
+        "5y": "1mo",
+        "10y": "3mo",
+        "max": "3mo"
+    }
 ```
 
 Parameters:
@@ -29,16 +82,21 @@ Installation:
 ## How to Use
 
 Install the tool:
-    pip install indicators-cli
+    pip install indicators
 
 Run the CLI tool:
-    indicators-cli TICKER [OPTIONS]
+    indicators TICKER [OPTIONS]
 
-Example:
-    indicators-cli AAPL -p 5y -t daily -f csv -e cpu -o indicators.csv
+Examples:
+
+    indicators AAPL -p 5y -t 1d -f csv -e cpu -o indicators.csv
+
+    indicators AAPL MSFT NVDA -t 1wk -f parquet -e gpu
+
+    indicators ticker.txt -t timeframe.json -c config.json -f json -e gpu -o outputs.txt
 
 For help:
-    indicators-cli --help
+    indicators --help
 
 ## Interpretation
 
