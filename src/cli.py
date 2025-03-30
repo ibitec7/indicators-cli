@@ -3,7 +3,7 @@
 import click
 import src.indicators
 
-VERSION="1.2.0"
+VERSION="1.2.1"
 
 @click.command()
 @click.version_option(VERSION)

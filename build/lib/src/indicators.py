@@ -37,11 +37,11 @@ def rsi(df, win):
 
 def bbands(df, win):
     df = df.with_columns(
-        (pl.col("close").rolling_mean(window_size=win) - 2 * pl.col("close").rolling_std(window_size=win)).alias("lower")
+        (pl.col("close").rolling_mean(window_size=win) - 2 * pl.col("close").rolling_std(window_size=win)).alias("bb_lower")
     )
     
     df = df.with_columns(
-        (pl.col("close").rolling_mean(window_size=win) + 2 * pl.col("close").rolling_std(window_size=win)).alias("lower")
+        (pl.col("close").rolling_mean(window_size=win) + 2 * pl.col("close").rolling_std(window_size=win)).alias("bb_upper")
     )
 
     return df
