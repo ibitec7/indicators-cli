@@ -1,0 +1,32 @@
+{
+    "sma_window": {
+        "max": {"1mo": 50, "3mo": 25 }
+    },
+    "ema_window": {
+        "max": {"1mo": 50, "3mo": 25 }
+    },
+    "macd_short": {
+        "max": {"1mo": 8, "3mo": 5 }
+    },
+    "macd_long": {
+        "max": {"1mo": 15, "3mo": 8 }
+    },
+    "macd_signal": {
+        "max": {"1mo": 5, "3mo": 3 }
+    },
+    "rsi_window": {
+        "max": {"1mo": 10, "3mo": 7 }
+    },
+    "bb_window": {
+        "max": {"1mo": 25, "3mo": 12 }
+    },
+    "roc_window": {
+        "max": {"1mo": 20, "3mo": 10 }
+    },
+    "atr_window": {
+        "max": {"1mo": 15, "3mo": 8 }
+    },
+    "stochastic_window": {
+        "max": {"1mo": 10, "3mo": 7 }
+    }
+}
