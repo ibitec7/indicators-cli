@@ -5,6 +5,91 @@ import os
 import json
 import time
 
+DEFAULT_CONFIG = """
+{
+    "sma_window": {
+        "ytd": { "1d": 20, "1wk": 10, "1mo": 5, "3mo": 3 },
+        "1y": { "1d": 20, "1wk": 10, "1mo": 5, "3mo": 3 },
+        "2y": { "1d": 20, "1wk": 10, "1mo": 5, "3mo": 3 },
+        "5y": { "1d": 50, "1wk": 25, "1mo": 15, "3mo": 8 },
+        "10y": { "1d": 200, "1wk": 100, "1mo": 50, "3mo": 25 },
+        "max": { "1d": 200, "1wk": 100, "1mo": 50, "3mo": 25 }
+    },
+    "ema_window": {
+        "ytd": { "1d": 20, "1wk": 10, "1mo": 5, "3mo": 3 },
+        "1y": { "1d": 20, "1wk": 10, "1mo": 5, "3mo": 3 },
+        "2y": { "1d": 20, "1wk": 10, "1mo": 5, "3mo": 3 },
+        "5y": { "1d": 50, "1wk": 25, "1mo": 15, "3mo": 8 },
+        "10y": { "1d": 200, "1wk": 100, "1mo": 50, "3mo": 25 },
+        "max": { "1d": 200, "1wk": 100, "1mo": 50, "3mo": 25 }
+    },
+    "macd_short": {
+        "ytd": { "1d": 12, "1wk": 6, "1mo": 4, "3mo": 3 },
+        "1y": { "1d": 12, "1wk": 6, "1mo": 4, "3mo": 3 },
+        "2y": { "1d": 12, "1wk": 6, "1mo": 4, "3mo": 3 },
+        "5y": { "1d": 12, "1wk": 6, "1mo": 4, "3mo": 3 },
+        "10y": { "1d": 26, "1wk": 13, "1mo": 8, "3mo": 5 },
+        "max": { "1d": 26, "1wk": 13, "1mo": 8, "3mo": 5 }
+    },
+    "macd_long": {
+        "ytd": { "1d": 26, "1wk": 13, "1mo": 8, "3mo": 5 },
+        "1y": { "1d": 26, "1wk": 13, "1mo": 8, "3mo": 5 },
+        "2y": { "1d": 26, "1wk": 13, "1mo": 8, "3mo": 5 },
+        "5y": { "1d": 26, "1wk": 13, "1mo": 8, "3mo": 5 },
+        "10y": { "1d": 50, "1wk": 25, "1mo": 15, "3mo": 8 },
+        "max": { "1d": 50, "1wk": 25, "1mo": 15, "3mo": 8 }
+    },
+    "macd_signal": {
+        "ytd": { "1d": 9, "1wk": 5, "1mo": 3, "3mo": 2 },
+        "1y": { "1d": 9, "1wk": 5, "1mo": 3, "3mo": 2 },
+        "2y": { "1d": 9, "1wk": 5, "1mo": 3, "3mo": 2 },
+        "5y": { "1d": 9, "1wk": 5, "1mo": 3, "3mo": 2 },
+        "10y": { "1d": 18, "1wk": 9, "1mo": 5, "3mo": 3 },
+        "max": { "1d": 18, "1wk": 9, "1mo": 5, "3mo": 3 }
+    },
+    "rsi_window": {
+        "ytd": { "1d": 14, "1wk": 7, "1mo": 5, "3mo": 3 },
+        "1y": { "1d": 14, "1wk": 7, "1mo": 5, "3mo": 3 },
+        "2y": { "1d": 14, "1wk": 7, "1mo": 5, "3mo": 3 },
+        "5y": { "1d": 21, "1wk": 10, "1mo": 7, "3mo": 5 },
+        "10y": { "1d": 30, "1wk": 15, "1mo": 10, "3mo": 7 },
+        "max": { "1d": 30, "1wk": 15, "1mo": 10, "3mo": 7 }
+    },
+    "bb_window": {
+        "ytd": { "1d": 20, "1wk": 10, "1mo": 5, "3mo": 3 },
+        "1y": { "1d": 20, "1wk": 10, "1mo": 5, "3mo": 3 },
+        "2y": { "1d": 20, "1wk": 10, "1mo": 5, "3mo": 3 },
+        "5y": { "1d": 50, "1wk": 25, "1mo": 15, "3mo": 8 },
+        "10y": { "1d": 100, "1wk": 50, "1mo": 25, "3mo": 12 },
+        "max": { "1d": 100, "1wk": 50, "1mo": 25, "3mo": 12 }
+    },
+    "roc_window": {
+        "ytd": { "1d": 10, "1wk": 5, "1mo": 3, "3mo": 2 },
+        "1y": { "1d": 10, "1wk": 5, "1mo": 3, "3mo": 2 },
+        "2y": { "1d": 10, "1wk": 5, "1mo": 3, "3mo": 2 },
+        "5y": { "1d": 20, "1wk": 10, "1mo": 5, "3mo": 3 },
+        "10y": { "1d": 90, "1wk": 45, "1mo": 20, "3mo": 10 },
+        "max": { "1d": 90, "1wk": 45, "1mo": 20, "3mo": 10 }
+    },
+    "atr_window": {
+        "ytd": { "1d": 14, "1wk": 7, "1mo": 5, "3mo": 3 },
+        "1y": { "1d": 14, "1wk": 7, "1mo": 5, "3mo": 3 },
+        "2y": { "1d": 14, "1wk": 7, "1mo": 5, "3mo": 3 },
+        "5y": { "1d": 20, "1wk": 10, "1mo": 7, "3mo": 5 },
+        "10y": { "1d": 50, "1wk": 25, "1mo": 15, "3mo": 8 },
+        "max": { "1d": 50, "1wk": 25, "1mo": 15, "3mo": 8 }
+    },
+    "stochastic_window": {
+        "ytd": { "1d": 14, "1wk": 7, "1mo": 5, "3mo": 3 },
+        "1y": { "1d": 14, "1wk": 7, "1mo": 5, "3mo": 3 },
+        "2y": { "1d": 14, "1wk": 7, "1mo": 5, "3mo": 3 },
+        "5y": { "1d": 21, "1wk": 10, "1mo": 7, "3mo": 5 },
+        "10y": { "1d": 30, "1wk": 15, "1mo": 10, "3mo": 7 },
+        "max": { "1d": 30, "1wk": 15, "1mo": 10, "3mo": 7 }
+    }
+}
+"""
+
 def macd(df, macd_short, macd_long, macd_signal):
     df = df.with_columns(
         (pl.col("close").ewm_mean(span=macd_short, adjust=False) - pl.col("close")\
@@ -130,62 +215,31 @@ def source_data(tickers, period, timeframe) -> pl.LazyFrame:
 
     return return_package
 
-def calculate_indicators(df: pl.LazyFrame, ticker, period, config=None, engine="cpu") -> pl.DataFrame:
+def calculate_indicators(df: pl.LazyFrame, ticker, period, time_frame, config=None, engine="cpu") -> pl.DataFrame:
 
     #Default configuration values for the indicators
-    defaults = {
-        "sma_window": {
-            "ytd": 20,"1y": 20,"2y": 20,"5y": 50,"10y": 200,"max": 200
-        },
-        "ema_window": {
-            "ytd": 20,"1y": 20,"2y": 20,"5y": 50,"10y": 200,"max": 200
-        },
-        "macd_short": {
-            "ytd": 12,"1y": 12,"2y": 12,"5y": 12,"10y": 26,"max": 26
-        },
-        "macd_long": {
-            "ytd": 26,"1y": 26,"2y": 26,"5y": 26,"10y": 50,"max": 50
-        },
-        "macd_signal": {
-            "ytd": 9,"1y": 9,"2y": 9,"5y": 9,"10y": 18,"max": 18
-        },
-        "rsi_window": {
-            "ytd": 14,"1y": 14,"2y": 14,"5y": 21,"10y": 30,"max": 30
-        },
-        "bb_window": {
-            "ytd": 20,"1y": 20,"2y": 20,"5y": 50,"10y": 100,"max": 100
-        },
-        "roc_window": {
-            "ytd": 10,"1y": 10,"2y": 10,"5y": 20,"10y": 90,"max": 90
-        },
-        "atr_window": {
-            "ytd": 14,"1y": 14,"2y": 14,"5y": 20,"10y": 50,"max": 50
-        },
-        "stochastic_window": {
-            "ytd": 14,"1y": 14,"2y": 14,"5y": 21,"10y": 30,"max": 30
-        }
-    }
+    defaults = json.loads(DEFAULT_CONFIG)
 
     if config is not None:
-        sma_window = config["sma_window"][period] if "sma_window" in config else defaults["sma_window"][period]
-        ema_window = config["ema_window"][period] if "ema_window" in config else defaults["ema_window"][period]
-        macd_short, macd_long, macd_signal = config["macd_short"][period] if "macd_short" in config else defaults["macd_short"][period],\
-              config["macd_long"][period] if "macd_long" in config else defaults["macd_long"][period],\
-                  config["macd_signal"][period] if "macd_signal" in config else defaults["macd_signal"][period]
-        rsi_window = config["rsi_window"][period] if "rsi_window" in config else defaults["rsi_window"][period]
-        bb_window = config["bb_window"][period] if "bb_window" in config else defaults["bb_window"][period]
-        roc_window = config["roc_window"][period] if "roc_window" in config else defaults["roc_window"][period]
-        atr_window = config["atr_window"][period] if "atr_window" in config else defaults["atr_window"][period]
-        stochastic_window = config["stochastic_window"][period] if "stochastic_window" in config else defaults["stochastic_window"][period]
+        sma_window = config["sma_window"][period][time_frame] if "sma_window" in config else defaults["sma_window"][period][time_frame]
+        ema_window = config["ema_window"][period][time_frame] if "ema_window" in config else defaults["ema_window"][period][time_frame]
+        macd_short, macd_long, macd_signal = config["macd_short"][period][time_frame] if "macd_short" in config else defaults["macd_short"][period][time_frame],\
+              config["macd_long"][period][time_frame] if "macd_long" in config else defaults["macd_long"][period][time_frame],\
+                  config["macd_signal"][period][time_frame] if "macd_signal" in config else defaults["macd_signal"][period][time_frame]
+        rsi_window = config["rsi_window"][period][time_frame] if "rsi_window" in config else defaults["rsi_window"][period][time_frame]
+        bb_window = config["bb_window"][period][time_frame] if "bb_window" in config else defaults["bb_window"][period][time_frame]
+        roc_window = config["roc_window"][period][time_frame] if "roc_window" in config else defaults["roc_window"][period][time_frame]
+        atr_window = config["atr_window"][period][time_frame] if "atr_window" in config else defaults["atr_window"][period][time_frame]
+        stochastic_window = config["stochastic_window"][period][time_frame] if "stochastic_window" in config else defaults["stochastic_window"][period][time_frame]
     else:
-        sma_window = defaults["sma_window"][period]
-        ema_window = defaults["ema_window"][period]
-        macd_short, macd_long, macd_signal = defaults["macd_short"][period], defaults["macd_long"][period], defaults["macd_signal"][period]
-        rsi_window = defaults["rsi_window"][period]
-        bb_window = defaults["bb_window"][period]
-        roc_window = defaults["roc_window"][period]
-        atr_window = defaults["atr_window"][period]
-        stochastic_window = defaults["stochastic_window"][period]
+        sma_window = defaults["sma_window"][period][time_frame]
+        ema_window = defaults["ema_window"][period][time_frame]
+        macd_short, macd_long, macd_signal = defaults["macd_short"][period][time_frame], defaults["macd_long"][period][time_frame], defaults["macd_signal"][period][time_frame]
+        rsi_window = defaults["rsi_window"][period][time_frame]
+        bb_window = defaults["bb_window"][period][time_frame]
+        roc_window = defaults["roc_window"][period][time_frame]
+        atr_window = defaults["atr_window"][period][time_frame]
+        stochastic_window = defaults["stochastic_window"][period][time_frame]
 
     try:
         columns = df.collect_schema().names()
@@ -198,10 +252,11 @@ def calculate_indicators(df: pl.LazyFrame, ticker, period, config=None, engine="
     df = df.rename({old: new for old, new in zip(columns, [x.lower() for x in columns])})
 
     df = df.with_columns(
-        pl.col("close").rolling_mean(window_size=sma_window).alias(f"sma_{sma_window}")
+        pl.col("close").rolling_mean(window_size=sma_window).alias(f"sma")
     )
-    df.with_columns(
-        pl.col("close").ewm_mean(span=ema_window).alias(f"ema_{ema_window}")
+    
+    df = df.with_columns(
+        pl.col("close").ewm_mean(span=ema_window).alias(f"ema")
     )
 
     df = macd(df, macd_short, macd_long, macd_signal)
@@ -220,15 +275,17 @@ def calculate_indicators(df: pl.LazyFrame, ticker, period, config=None, engine="
 
     return return_package
 
-async def write_output(df: pl.DataFrame, dir,output_file, ticker, period, type):
+async def write_output(df: pl.DataFrame, dir, output_file, ticker, period, timeframe, type):
 
     if dir is not None and not os.path.exists(dir):
         os.makedirs(dir)
 
-    if output_file is not None and dir is not None:
-        output_file = f"{dir}/{output_file}"
+    if output_file is not None and dir is not None and type is None:
+        output_file = os.path.join(dir, output_file[0])
+    elif output_file is not None and dir is not None and type is not None:
+        output_file = os.path.join(dir, f"{output_file[0].split(".")[0]}.{type}")
     elif output_file is None and dir is not None:
-        output_file = f"{dir}/{ticker}_{period}.{type}"
+        output_file = os.path.join(dir,f"{ticker}_{period}_{timeframe}.{type}")
     elif output_file is None and dir is None:
         output_file = f"{ticker}_{period}.{type}"
 
@@ -284,7 +341,7 @@ def run_main(ticker, period, timeframe, output, format, dir, config_json, engine
     else:
         time_frame = timeframe
 
-    config = dict()
+    config = None
     if config_json is not None:
         with open(config_json, "r") as f:
             config = json.load(f)
@@ -309,13 +366,14 @@ def run_main(ticker, period, timeframe, output, format, dir, config_json, engine
         periods.append(period)
 
     outputs = []
+    
     if output is not None:
         if output.endswith(".txt"):
             with open(output, "r") as f:
                 outputs = [line.strip() for line in f if line.strip()]
         else:
-            for o in output:
-                output.extend(o.split(","))
+            # If there is a comma in the string, split it, otherwise just use the string as a single element list
+            outputs = output.split(",") if "," in output else [output]
 
     sourced_data = []
 
@@ -328,7 +386,7 @@ def run_main(ticker, period, timeframe, output, format, dir, config_json, engine
 
     start_calc = time.time()
 
-    prepared_data = [calculate_indicators(df=df["data"], ticker=df["ticker"], period=df["period"], config=config, engine=engine) for df in sourced_data]
+    prepared_data = [calculate_indicators(df=df["data"], ticker=df["ticker"], time_frame=time_frame, period=df["period"], config=config, engine=engine) for df in sourced_data]
 
     elapsed_calc = time.time() - start_calc
 
@@ -338,7 +396,7 @@ def run_main(ticker, period, timeframe, output, format, dir, config_json, engine
 
     start_write = time.time()
 
-    tasks = [write_output(df["data"], output_file=output,ticker=df["ticker"], period=df["period"], dir=dir, type=format) for df, output in zip(prepared_data, outputs)]
+    tasks = [write_output(df["data"], output_file=output,ticker=df["ticker"], period=df["period"], timeframe=time_frame, dir=dir, type=format) for df, output in zip(prepared_data, outputs)]
     run_asyncio(tasks)
 
     elapsed_write = time.time() - start_write
