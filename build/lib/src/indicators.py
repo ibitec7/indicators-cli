@@ -150,7 +150,7 @@ def obv(df):
 
 def stochastic_oscillator(df, period):
     df = df.with_columns(
-        ((pl.col("close") - pl.col("low").rolling_min(window_size=period)) - 
+        ((pl.col("close") - pl.col("low").rolling_min(window_size=period)) / 
         (pl.col("high").rolling_max(window_size=period) - pl.col("low").rolling_min(window_size=period))
         * 100).alias("K")
     )
@@ -287,7 +287,7 @@ async def write_output(df: pl.DataFrame, dir, output_file, ticker, period, timef
     elif output_file is None and dir is not None:
         output_file = os.path.join(dir,f"{ticker}_{period}_{timeframe}.{type}")
     elif output_file is None and dir is None:
-        output_file = f"{ticker}_{period}.{type}"
+        output_file = f"{ticker}_{period}_{timeframe}.{type}"
 
     if output_file.endswith(".csv"):
         await asyncio.to_thread(df.write_csv, output_file)
