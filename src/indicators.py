@@ -112,10 +112,17 @@ def rsi(df, win):
     )
 
     df = df.with_columns(
-        (100 / (1 + (pl.when(pl.col("returns") > 0)
-        .then(pl.col("returns")).otherwise(0).rolling_mean(window_size=win) \
-            / pl.when(pl.col("returns") < 0).
-            then(pl.col("returns")).otherwise(0).rolling_mean(window_size=win)))).alias("rsi")
+        pl.when(pl.col("returns") > 0).then(pl.col("returns")).otherwise(0).alias("gains"),
+        pl.when(pl.col("returns") < 0).then(pl.abs(pl.col("returns"))).otherwise(0).alias("losses")
+    )
+
+    df = df.with_columns(
+        pl.col("gains").rolling_mean(window_size=win).alias("avg_gain"),
+        pl.col("losses").rolling_mean(window_size=win).alias("avg_loss")
+    )
+
+    df = df.with_columns(
+        (100 - (100 / (1 + (pl.col("avg_gain") / pl.col("avg_loss").clip_min(1e-10))))).alias("rsi")
     )
 
     return df
@@ -146,7 +153,18 @@ def atr(df, win):
     return df
 
 def obv(df):
-    return df.with_columns(pl.col("close").pct_change().cum_sum().alias("obv"))
+    df = df.with_columns(
+        pl.when(pl.col("close") > pl.col("close").shift())
+          .then(pl.col("volume"))
+          .when(pl.col("close") < pl.col("close").shift())
+          .then(-pl.col("volume"))
+          .otherwise(0)
+          .alias("obv_delta")
+    )
+    df = df.with_columns(
+        pl.col("obv_delta").cumsum().alias("obv")
+    )
+    return df
 
 def stochastic_oscillator(df, period):
     df = df.with_columns(
