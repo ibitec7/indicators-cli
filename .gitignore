@@ -10,3 +10,4 @@ build/*
 debian/indicators-cli.substvars
 indicators_cli.egg-info/*
 pybuild/*
+keys.json
