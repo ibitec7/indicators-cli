@@ -8,7 +8,7 @@ A powerful command-line tool for calculating common technical indicators for sto
 
 ## 📋 Table of Contents
 
-- [Features](#features)
+- [Features](##✨Features)
 - [What's New](#whats-new)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
