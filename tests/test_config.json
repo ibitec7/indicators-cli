@@ -1,0 +1,9 @@
+{
+  "tickers": ["AAPL", "MSFT", "GOOG"],
+  "periods": ["1y", "2y"],
+  "timeframes": ["1d", "1wk"],
+  "formats": ["csv", "parquet", "json", "xlsx", "avro"],
+  "batch_tickers": ["AAPL", "MSFT", "GOOG"],
+  "timeout": 60,
+  "use_live_data": true
+}
