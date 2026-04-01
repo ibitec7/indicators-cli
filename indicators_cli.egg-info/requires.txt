@@ -1,4 +1,0 @@
-polars
-numpy
-yfinance
-click
