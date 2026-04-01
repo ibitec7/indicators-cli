@@ -113,7 +113,7 @@ def rsi(df, win):
 
     df = df.with_columns(
         pl.when(pl.col("returns") > 0).then(pl.col("returns")).otherwise(0).alias("gains"),
-        pl.when(pl.col("returns") < 0).then(pl.abs(pl.col("returns"))).otherwise(0).alias("losses")
+        pl.when(pl.col("returns") < 0).then(pl.col("returns").abs()).otherwise(0).alias("losses")
     )
 
     df = df.with_columns(
@@ -122,7 +122,7 @@ def rsi(df, win):
     )
 
     df = df.with_columns(
-        (100 - (100 / (1 + (pl.col("avg_gain") / pl.col("avg_loss").clip_min(1e-10))))).alias("rsi")
+        (100 - (100 / (1 + (pl.col("avg_gain") / pl.col("avg_loss").clip(lower_bound=1e-10))))).alias("rsi")
     )
 
     return df
@@ -145,8 +145,8 @@ def roc(df, win):
 
 def atr(df, win):
     df = df.with_columns((pl.col("high") - pl.col("low")).alias("hi_lo"))
-    df = df.with_columns(abs(pl.col("high") - pl.col("close").shift()).alias("hi_close"))
-    df = df.with_columns(abs(pl.col("low") - pl.col("close").shift()).alias("lo_close"))
+    df = df.with_columns((pl.col("high") - pl.col("close").shift()).abs().alias("hi_close"))
+    df = df.with_columns((pl.col("low") - pl.col("close").shift()).abs().alias("lo_close"))
     df = df.with_columns(pl.max_horizontal(pl.col("hi_lo"), pl.col("hi_close"), pl.col("lo_close")).alias("true_range"))
     df = df.with_columns(pl.col("true_range").rolling_mean(win).alias("ATR"))
 
@@ -162,7 +162,7 @@ def obv(df):
           .alias("obv_delta")
     )
     df = df.with_columns(
-        pl.col("obv_delta").cumsum().alias("obv")
+        pl.col("obv_delta").cum_sum().alias("obv")
     )
     return df
 
