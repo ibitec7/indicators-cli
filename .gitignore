@@ -1,15 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+.env
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Profiling
+profiling/results/*
+
+# Debian build files
 debian/.debianhelper
 debian/indicators-cli
 debian/debhelper-build-stamp
 debian/indicators-cli.substvars
-dist
-debian/debhelper-build-stamp
-src/__pycache__/*
-profiling/__pycache__/*
-profiling/results/*
 debian/files
-build/*
-debian/indicators-cli.substvars
-indicators_cli.egg-info/*
-pybuild/*
-keys.json
+pybuild/
