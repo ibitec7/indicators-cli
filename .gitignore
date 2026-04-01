@@ -5,6 +5,8 @@ debian/indicators-cli.substvars
 dist
 debian/debhelper-build-stamp
 src/__pycache__/*
+profiling/__pycache__/*
+profiling/results/*
 debian/files
 build/*
 debian/indicators-cli.substvars
