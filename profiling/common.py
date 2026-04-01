@@ -19,6 +19,116 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 RESULTS_DIR = ROOT_DIR / "profiling" / "results"
 RAW_DIR = RESULTS_DIR / "raw"
 
+SCENARIOS = {
+  "scenarios": [
+    {
+      "name": "e2e_cpu_cached",
+      "suite": "e2e",
+      "mode": "cached",
+      "tickers": ["AAPL"],
+      "period": "1y",
+      "timeframe": "1d",
+      "engine": "cpu",
+      "format": "csv",
+      "repeat": 1
+    },
+    {
+      "name": "e2e_gpu_cached",
+      "suite": "e2e",
+      "mode": "cached",
+      "tickers": ["AAPL"],
+      "period": "1y",
+      "timeframe": "1d",
+      "engine": "gpu",
+      "format": "csv",
+      "repeat": 1
+    },
+    {
+      "name": "smoke_cpu_live",
+      "suite": "e2e",
+      "mode": "live",
+      "tickers": ["AAPL"],
+      "period": "1y",
+      "timeframe": "1d",
+      "engine": "cpu",
+      "format": "csv",
+      "repeat": 1
+    },
+    {
+      "name": "smoke_gpu_live",
+      "suite": "e2e",
+      "mode": "live",
+      "tickers": ["AAPL"],
+      "period": "1y",
+      "timeframe": "1d",
+      "engine": "gpu",
+      "format": "csv",
+      "repeat": 1
+    },
+    {
+      "name": "source_live_single",
+      "suite": "source",
+      "mode": "live",
+      "tickers": ["AAPL"],
+      "period": "1y",
+      "timeframe": "1d",
+      "engine": "cpu",
+      "repeat": 1
+    },
+    {
+      "name": "source_cached_fixture",
+      "suite": "source",
+      "mode": "cached",
+      "tickers": ["AAPL"],
+      "period": "1y",
+      "timeframe": "1d",
+      "engine": "cpu",
+      "repeat": 1
+    },
+    {
+      "name": "calc_cpu_cached",
+      "suite": "calculation",
+      "mode": "cached",
+      "tickers": ["AAPL"],
+      "period": "1y",
+      "timeframe": "1d",
+      "engine": "cpu",
+      "repeat": 1
+    },
+    {
+      "name": "calc_gpu_cached",
+      "suite": "calculation",
+      "mode": "cached",
+      "tickers": ["AAPL"],
+      "period": "1y",
+      "timeframe": "1d",
+      "engine": "gpu",
+      "repeat": 1
+    },
+    {
+      "name": "write_csv_cached",
+      "suite": "write",
+      "mode": "cached",
+      "tickers": ["AAPL"],
+      "period": "1y",
+      "timeframe": "1d",
+      "engine": "cpu",
+      "format": "csv",
+      "repeat": 1
+    },
+    {
+      "name": "write_parquet_cached",
+      "suite": "write",
+      "mode": "cached",
+      "tickers": ["AAPL"],
+      "period": "1y",
+      "timeframe": "1d",
+      "engine": "cpu",
+      "format": "parquet",
+      "repeat": 1
+    }
+  ]
+}
 
 def ensure_dirs() -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -41,7 +151,11 @@ def load_json(path: str | Path) -> dict[str, Any]:
 
 def load_scenarios(scenarios_path: str | Path | None = None) -> list[dict[str, Any]]:
     path = Path(scenarios_path) if scenarios_path else ROOT_DIR / "profiling" / "scenarios.json"
-    payload = load_json(path)
+    try:    
+        payload = load_json(path) # here
+    except:
+        print(f"[WARNING] Could not load scenarios from {path}, using default hardcoded scenarios")
+        payload = SCENARIOS
     return payload.get("scenarios", [])
 
 
