@@ -8,11 +8,12 @@ A powerful command-line tool for calculating common technical indicators for sto
 
 ## 📋 Table of Contents
 
-- [Features](##✨Features)
+- [Features](#features)
 - [What's New](#whats-new)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Quick Command Reference](#quick-command-reference)
 - [Usage](#usage)
 - [Configuration](#configuration)
 - [Templates](#templates)
@@ -21,10 +22,14 @@ A powerful command-line tool for calculating common technical indicators for sto
 - [Advanced Usage](#advanced-usage)
 - [Interpretation](#interpretation)
 - [Performance](#performance)
+- [Testing](#testing)
+- [Profiling](#profiling)
 - [Troubleshooting](#troubleshooting)
 - [Build and Publish](#build-and-publish)
 - [Contributing](#contributing)
 - [License](#license)
+
+<a id="features"></a>
 
 ## ✨ Features
 
@@ -40,40 +45,50 @@ A powerful command-line tool for calculating common technical indicators for sto
 - **Async Operations**: Asynchronous I/O for efficient data fetching and file operations
 - **Lazy Evaluation**: Memory-efficient data processing with lazy computation
 
+<a id="whats-new"></a>
+
 ## 🆕 What's New
 
-```
-    - v1.2.9: Current stable release
+| Version | Changes |
+|---------|----------|
+| **v1.2.9** | Current stable release |
+| **v1.2.0** | Added support for configuration files and downsampling |
+| **v1.1.0** | Added async I/O handling for improved data fetching performance |
+| **v1.0.0** | Major upgrade to Polars: concurrent processing, lazy evaluation, GPU support |
 
-    - v1.2.0: Added support for configuration files and downsampling.
-
-    - v1.1.0: Added support for asynchronous handling of I/O bound tasks and downloading
-              (done by yfinance backend).
-    
-    - v1.0.0: Upgrade to polars library to support concurrent data processing,
-              lazy computations and support for both CPU and GPU engines. 
-```
+<a id="prerequisites"></a>
 
 ## 📦 Prerequisites
 
-- **Python**: Version 3.6 or higher
-- **pip**: Python package installer
+- **Python**: Version 3.8 or higher (3.8, 3.9, 3.10, 3.11, 3.12)
+- **uv or pip**: Latest version recommended
 - **Internet Connection**: Required to fetch data from Yahoo Finance API
+- **Optional - GPU Support**: NVIDIA GPU with CUDA 11.0+
+
+<a id="installation"></a>
 
 ## 🚀 Installation
 
-Install the package from PyPI using pip:
+### Using pip
 
 ```bash
 pip install indicators-cli
 ```
 
-To verify installation:
+### Using uv (faster alternative)
+
+```bash
+uv pip install indicators-cli
+```
+
+### Verify Installation
 
 ```bash
 indicators --version
 ```
 
+
+<a id="quick-start"></a>
 
 ## 🎯 Quick Start
 
@@ -92,6 +107,24 @@ indicators AAPL MSFT NVDA GOOGL
 # Save to a specific file and directory
 indicators AAPL -o my_analysis.csv -d ./output
 ```
+
+<a id="quick-command-reference"></a>
+
+## ⚡ Quick Command Reference
+
+| Task | Command |
+|------|--------|
+| **Single ticker, defaults** | `indicators AAPL` |
+| **Custom period & timeframe** | `indicators AAPL -p 2y -t 1wk` |
+| **Export to Parquet** | `indicators AAPL -f parquet` |
+| **Export to Excel** | `indicators AAPL -f xlsx -o result.xlsx` |
+| **Multiple tickers** | `indicators AAPL MSFT TSLA` |
+| **From file list** | `indicators tickers.txt` |
+| **With custom config** | `indicators AAPL -c config.json` |
+| **GPU acceleration** | `indicators AAPL -e gpu` |
+| **Get help** | `indicators --help` |
+
+<a id="usage"></a>
 
 ## 📚 Usage
 
@@ -157,6 +190,8 @@ indicators AAPL -p 1y -t 1d -f parquet -e cpu -d ./analysis/2024
 indicators --help
 ```
 
+<a id="configuration"></a>
+
 ## ⚙️ Configuration
 
 ### Custom Indicator Parameters
@@ -205,11 +240,23 @@ For advanced users, you can specify different timeframes for different periods u
 indicators AAPL -t timeframe.json
 ```
 
+<a id="templates"></a>
+
 ## 📋 Templates
+
+### Overview
+
+Templates allow you to customize indicator calculation windows. You can override defaults by specifying custom values in JSON files. **You don't need to specify all values** — omitted ones use sensible defaults.
 
 ### 1) Indicators JSON Config
 
-Enter the values you want to override for whichever period you are scraping. Each integer value is a certain number of timeframe periods so if your timeframe is "1wk" for the "ytd" period then entering 20 would mean a 20 weeks window. Entering all values is not necessary. The values omitted will be replaced by default values in this template:
+**When to use**: Override default indicator window sizes for specific periods/timeframes.
+
+**How it works**: Each integer represents a number of periods in your chosen timeframe. For example, with `"1wk"` timeframe, entering `20` means a 20-week window.
+
+**Required**: Omit values you don't need; they'll use defaults.
+
+**Default values template**:
 ```
     {
     "sma_window": {
@@ -297,8 +344,11 @@ Enter the values you want to override for whichever period you are scraping. Eac
 
 ### 2) Timeframe Config
 
-Enter the timeframe you would like to choose for each period. Entering a timeframe for each period you mention is necessary if you pass a JSON configuration.
+**When to use**: Specify different timeframes for different periods (advanced use case).
 
+**How it works**: Maps each period to its preferred granularity. Useful for balancing data density (more for recent data) and performance (coarser for historical data).
+
+**Example timeframe.json**:
 ```json
 {
     "ytd": "1d",
@@ -309,6 +359,13 @@ Enter the timeframe you would like to choose for each period. Entering a timefra
     "max": "3mo"
 }
 ```
+
+**Usage with custom config**:
+```bash
+indicators AAPL -t timeframe.json
+```
+
+<a id="indicators"></a>
 
 ## 📊 Indicators
 
@@ -327,6 +384,8 @@ The tool calculates the following 9 technical indicators:
 | **Stochastic** | Stochastic Oscillator | %K and %D calculations |
 
 All indicators are calculated with period-appropriate parameters that automatically adjust based on your chosen timeframe and period.
+
+<a id="output-formats"></a>
 
 ## 💾 Output Formats
 
@@ -351,6 +410,8 @@ indicators AAPL -f parquet -o analysis.parquet
 # JSON for web apps
 indicators AAPL -f json -o analysis.json
 ```
+
+<a id="advanced-usage"></a>
 
 ## 🚀 Advanced Usage
 
@@ -399,7 +460,15 @@ For large datasets or multiple tickers, use GPU acceleration:
 indicators AAPL MSFT NVDA GOOGL AMZN -e gpu -t 1d -p 5y
 ```
 
-**Note:** Requires compatible GPU and drivers.
+**GPU Requirements**:
+- NVIDIA GPU with CUDA compute capability 3.5+
+- CUDA 11.0 or higher
+- cuDNN library (optional, for enhanced performance)
+- Install GPU-enabled Polars: `pip install polars-gpu`
+
+**Performance**: ~50-70% faster for multi-ticker analysis on compatible hardware.
+
+<a id="interpretation"></a>
 
 ## 📖 Interpretation
 
@@ -494,10 +563,13 @@ Interpretation:
     When the %K line crosses above the %D line in the oversold region (below 20), it’s a potential buy signal. Conversely, when it crosses below the %D line in the overbought region (above 80), it’s a potential sell signal.
     Divergences between price and the Stochastic Oscillator can indicate potential trend reversals.
 
-## Build and Publish
+<a id="build-and-publish"></a>
 
-The package is automatically built and published to PyPI when a git tag starting with "v" (e.g., v1.1.0) is pushed. This process is managed by the GitHub Actions workflow located at:
-    .github/workflows/workflow.yaml
+## 📦 Build and Publish
+
+The package is automatically built and published to PyPI when a git tag starting with "v" (e.g., `v1.1.0`) is pushed. This process is managed by the GitHub Actions workflow at `.github/workflows/workflow.yaml`.
+
+<a id="performance"></a>
 
 ## ⚡ Performance
 
@@ -533,6 +605,156 @@ Typical processing times on a standard laptop (4-core CPU):
 - 5 tickers, 5-year daily data: ~8-15 seconds
 - Single ticker with GPU acceleration: ~1-2 seconds
 
+<a id="testing"></a>
+
+## ✅ Testing
+
+The indicators-cli project includes a comprehensive test suite that validates indicator correctness, end-to-end functionality, output format support, and batch processing capabilities. All tests use real Yahoo Finance data to ensure they validate actual tool behavior.
+
+### Test Coverage
+
+The test suite includes over 25 real tests across 4 test categories:
+
+#### 1. **Correctness Tests** (9 tests)
+- Validates each of the 9 technical indicators calculates correctly
+- Tests: SMA, EMA, MACD, RSI, Bollinger Bands, ATR, OBV, ROC, Stochastic Oscillator
+- Ensures indicator values are within valid ranges (e.g., RSI 0-100)
+- Uses real AAPL, MSFT, GOOG data from Yahoo Finance
+
+#### 2. **Integration Tests** (7 tests)
+- Tests full pipeline: fetch data → calculate indicators → write output
+- Validates single ticker processing with all 5 output formats
+- Tests period variations (1y, 2y) to verify data grows appropriately
+- Tests timeframe variations (1d, 1wk) to validate data granularity
+
+#### 3. **Format Validation Tests** (6 tests)
+- Validates all 5 output formats: CSV, Parquet, JSON, XLSX, AVRO
+- Tests format-specific read/write operations
+- Verifies data consistency across all formats
+- Tests round-trip: calculate → write → read back → validate
+
+#### 4. **Batch Processing Tests** (5 tests)
+- Tests multi-ticker concurrent processing
+- Validates batch consistency across multiple runs
+- Tests mixed format scenarios
+- Processes up to 5 tickers simultaneously
+
+### Running Tests
+
+#### Run All Tests
+```bash
+indicators --test
+```
+
+#### Run Specific Test Suite
+```bash
+# Run only correctness tests
+indicators --test --test-suite correctness
+
+# Run only integration tests
+indicators --test --test-suite integration
+
+# Run only format tests
+indicators --test --test-suite formats
+
+# Run only batch tests
+indicators --test --test-suite batch
+```
+
+### Test Output
+
+When you run tests, you'll see output like:
+
+```
+======================================================================
+RUNNING: Correctness Tests
+======================================================================
+
+CORRECTNESS SUITE RESULTS:
+  Total Tests: 9
+  Passed: 9
+  Failed: 0
+  Errors: 0
+  Success Rate: 100.0%
+  Time: 45.23s
+
+...
+
+======================================================================
+OVERALL TEST SUMMARY
+======================================================================
+Total Tests: 27
+Passed: 27
+Failed: 0
+Errors: 0
+Success Rate: 100.0%
+Total Time: 180.45s
+======================================================================
+
+✅ ALL TESTS PASSED
+```
+
+### Test Results Storage
+
+Test results are saved to `tests/results/latest.json` for:
+- Test execution timestamps
+- Pass/fail status for each test
+- Elapsed time per test
+- Test details and validation results
+
+### What's Actually Tested
+
+Unlike smoke tests or fixtures, these are **functional tests** that:
+- ✅ Fetch **real stock data** from Yahoo Finance (not mocked)
+- ✅ **Calculate actual indicators** using the full calculation pipeline
+- ✅ **Write real indicator data** to disk in multiple formats
+- ✅ **Validate calculations** are mathematically correct (RSI in range, band ordering, etc.)
+- ✅ **Verify consistency** across formats and configurations
+- ✅ **Test real-world scenarios** like multi-ticker batch processing
+
+### Troubleshooting Tests
+
+**Test Timeouts**: Tests depend on Yahoo Finance API availability. If tests timeout, check:
+- Network connectivity
+- Yahoo Finance API status
+- Firewall/VPN restrictions
+
+**Intermittent Failures**: Occasionally a ticker may be unavailable. This is expected and tests handle gracefully.
+
+**GPU Tests**: GPU tests auto-detect hardware and skip if unavailable (in Phase 2 expansion).
+
+<a id="profiling"></a>
+
+## 📊 Profiling
+
+Run profiling directly from the CLI to measure performance:
+
+```bash
+# All profiles in cached (deterministic) mode
+indicators --profile --profile-mode cached
+
+# Specific suite only
+indicators --profile --profile-suite e2e --profile-mode cached
+
+# One scenario
+indicators --profile --profile-scenario e2e_cpu_cached
+```
+
+Profiling collects:
+- **Phase timings**: source, calculation, write
+- **cProfile dumps**: function-level call counts and times
+- **Output artifacts**: computed CSV/Parquet files as proof of execution
+- **JSON/CSV summaries**: timings and environment snapshot
+
+Results are saved to `profiling/results/`:
+- `latest.json` / `latest.csv`: Most recent run summary
+- `raw/*.prof`: cProfile binary dumps  
+- `raw/<run_id>/<scenario>/<iteration>/`: Computed indicator outputs
+
+See [profiling/README.md](profiling/README.md) for advanced usage.
+
+<a id="troubleshooting"></a>
+
 ## 🔧 Troubleshooting
 
 ### Common Issues
@@ -565,6 +787,8 @@ For detailed error messages, run Python with verbose output:
 python -v -m src.cli AAPL
 ```
 
+<a id="contributing"></a>
+
 ## 🤝 Contributing
 
 Contributions are welcome! Here's how you can help:
@@ -581,8 +805,12 @@ Contributions are welcome! Here's how you can help:
 git clone https://github.com/ibitec7/indicators-cli.git
 cd indicators-cli
 
-# Install dependencies
+# Install dependencies (choose one)
+# Option 1: Using pip
 pip install -r requirements.txt
+
+# Option 2: Using uv (faster)
+uv pip install -r requirements.txt
 
 # Install in development mode
 pip install -e .
@@ -590,6 +818,8 @@ pip install -e .
 # Run the tool
 indicators AAPL
 ```
+
+<a id="license"></a>
 
 ## 📄 License
 
