@@ -1,0 +1,55 @@
+name: Wiki reminder
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  wiki-reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect doc-impacting changes
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+
+          changed="$(git diff --name-only "$base" "$head" || true)"
+          echo "changed<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$changed" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          needs_wiki_update="false"
+          if echo "$changed" | grep -Eq '^(src/cli\.py|src/indicators\.py|src/default_configs\.json|tests/|profiling/)'; then
+            needs_wiki_update="true"
+          fi
+          echo "needs_wiki_update=$needs_wiki_update" >> "$GITHUB_OUTPUT"
+
+      - name: Wiki update checklist
+        if: steps.changes.outputs.needs_wiki_update == 'true'
+        run: |
+          {
+            echo "## Wiki reminder"
+            echo
+            echo "This PR changes code that commonly requires wiki updates."
+            echo
+            echo "**Please confirm the GitHub Wiki is still accurate:**"
+            echo "- CLI flags/options → \`CLI Reference\`"
+            echo "- Config keys/defaults → \`Configuration & Templates\`"
+            echo "- Indicator columns → \`Indicators (Overview)\` + per-indicator page"
+            echo "- Tests/profiling flows → \`Developer Guide\` / \`Profiling\`"
+            echo
+            echo "Changed paths:"
+            echo
+            echo "\`\`\`"
+            echo "${{ steps.changes.outputs.changed }}"
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
